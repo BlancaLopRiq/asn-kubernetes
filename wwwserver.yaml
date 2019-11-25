@@ -1,0 +1,44 @@
+# APP DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: wwwserver 
+  name: wwwserver
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: wwwserver 
+    spec:
+      containers:
+      - image: jrbalsas/phpwebappv2  
+        imagePullPolicy: IfNotPresent
+        name: wwwserver
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        # Adjust resources for deploying on GKE g1-instance
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 20m
+---
+# APP SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: wwwserver
+  name: wwwserver
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080 
+  selector:
+    run: wwwserver 
+  type: NodePort
+# type: LoadBalancer
